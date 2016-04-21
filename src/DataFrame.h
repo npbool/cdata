@@ -21,7 +21,7 @@ using namespace std;
 class DataFrame
 {
 public:
-    static DataFrame *read_csv(const char *path, int nrow=-1);
+    static DataFrame *read_csv(const char *path, unordered_map<string, BaseSeriesFactory>& factory, int nrow=-1);
     static DataFrame *load(const char *path);
 
     void dump(const char *path);
@@ -61,12 +61,12 @@ public:
     };
 
 
+    void parse_line(char *, char sep = ',');
 private:
     unordered_map<string, int> columns;
     vector<shared_ptr<Series>> data;
 
-    void parse_header(char *, char sep = ',');
-    void parse_line(char *, char sep = ',');
+    void parse_header(char *, unordered_map<string, BaseSeriesFactory>& factory, char sep = ',');
     size_t length;
 };
 

@@ -48,7 +48,8 @@ public:
         : Series(name)
     { }
 
-    VT val(int index){
+    VT val(int index)
+    {
         return data[index];
     }
     virtual bool isCategorical() override
@@ -73,9 +74,10 @@ public:
     virtual void output(ostream &os) override
     {
         for (int d : data) {
-            if(d==nan){
-                os<<"nan"<<' ';
-            } else {
+            if (d == nan) {
+                os << "nan" << ' ';
+            }
+            else {
                 os << d << ' ';
             }
         }
@@ -92,7 +94,8 @@ public:
     typedef float VT;
     const VT nan = numeric_limits<float>::quiet_NaN();
 
-    VT val(int index){
+    VT val(int index)
+    {
         return data[index];
     }
 
@@ -154,16 +157,17 @@ public:
     }
     virtual void output(ostream &os) override
     {
-        for(string str:data){
-            cout<<str<<" "<<endl;
+        for (string str:data) {
+            cout << str << " " << endl;
         }
-        cout<<endl;
+        cout << endl;
     }
 private:
     vector<string> data;
 };
 
-class DatetimeSeries : public Series{
+class DatetimeSeries: public Series
+{
 public:
     virtual bool isCategorical() override
     {
@@ -185,6 +189,42 @@ public:
         : Series(name)
     { }
 };
+
+struct IGenerator
+{
+    virtual Series *gen(const string &name) = 0;
+};
+
+template<class ST>
+struct Generator: public IGenerator
+{
+    virtual Series *gen(const string &name) override
+    { return new ST(name); }
+};
+
+class BaseSeriesFactory
+{
+public:
+    BaseSeriesFactory(IGenerator *gnr)
+        : generator(gnr)
+    {
+    }
+    virtual Series *new_series(const string &name) const
+    { return generator->gen(name); };
+private:
+    shared_ptr<IGenerator> generator;
+};
+
+template<class ST>
+class SeriesFactory: public BaseSeriesFactory
+{
+public:
+    SeriesFactory()
+        : BaseSeriesFactory(new Generator<ST>)
+    {
+    }
+};
+
 }
 
 
